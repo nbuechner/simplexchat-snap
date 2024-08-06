@@ -1,0 +1,47 @@
+name: simplexchat
+base: core24
+version: '5.8.2'
+summary: The first messaging platform that has no user identifiers of any kind
+description: |
+             SimpleX Chat is a private and secure messaging app that emphasizes privacy by not using user IDs,
+             including phone numbers or random identifiers. Instead, it uses temporary anonymous pairwise identifiers for message delivery,
+             ensuring no long-term identifiers exist. The app features end-to-end encryption, decentralized groups,
+             and anonymous credentials to enhance security. Users can control their data, avoid spam and abuse,
+             and connect via servers or Tor for added privacy.
+grade: stable
+confinement: strict
+
+platforms:
+  amd64:
+    build-on: amd64
+    build-for: amd64
+
+apps:
+  simplexchat:
+    command: wrapper.sh
+    plugs: [home, x11, desktop, desktop-legacy, network, audio-playback, audio-record, wayland, unity7]
+    extensions: [ gnome ]
+    environment:
+       _JAVA_OPTIONS: "-Djava.security.manager=allow"
+
+parts:
+ main:
+    source: .
+    plugin: dump
+    override-build: |
+      URL=https://github.com/simplex-chat/simplex-chat/releases/download/v5.8.2/simplex-desktop-ubuntu-22_04-x86_64.deb
+      wget -q -O- $URL | dpkg -x - "$SNAPCRAFT_PART_INSTALL"
+      cp -f ${CRAFT_PROJECT_DIR}/local/wrapper.sh $SNAPCRAFT_PART_INSTALL/wrapper.sh
+      chmod +x $SNAPCRAFT_PART_INSTALL/wrapper.sh
+      craftctl default
+
+    build-packages:
+      - wget
+
+    stage-packages:
+      - libproxy1v5
+
+lint:
+  ignore:
+    - library
+
