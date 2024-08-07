@@ -40,6 +40,12 @@ parts:
 
     stage-packages:
       - libproxy1v5
+      - libx11-dev
+      - libx11-6
+
+layout:
+  /usr/lib/x86_64-linux-gnu/libX11.so.6:
+    symlink: $SNAP/usr/lib/x86_64-linux-gnu/libX11.so.6
 
 lint:
   ignore:
