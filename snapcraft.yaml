@@ -1,6 +1,6 @@
 name: simplexchat
 base: core24
-version: '6.2.0'
+version: '6.4.7'
 summary: The first messaging platform that has no user identifiers of any kind
 description: |
              SimpleX Chat is a private and secure messaging app that emphasizes privacy by not using user IDs,
@@ -34,7 +34,7 @@ parts:
     source: .
     plugin: dump
     override-build: |
-      URL=https://github.com/simplex-chat/simplex-chat/releases/download/v$SNAPCRAFT_PROJECT_VERSION/simplex-desktop-ubuntu-22_04-x86_64.deb
+      URL=https://github.com/simplex-chat/simplex-chat/releases/download/v${SNAPCRAFT_PROJECT_VERSION}/simplex-desktop-ubuntu-24_04-x86_64.deb
       wget -q -O- $URL | dpkg -x - "$SNAPCRAFT_PART_INSTALL"
       cp -f ${CRAFT_PROJECT_DIR}/local/wrapper.sh $SNAPCRAFT_PART_INSTALL/wrapper.sh
       chmod +x $SNAPCRAFT_PART_INSTALL/wrapper.sh
@@ -51,7 +51,7 @@ parts:
     source: .
     plugin: dump
     override-build: |
-      URL=https://github.com/simplex-chat/simplex-chat/releases/download/v$SNAPCRAFT_PROJECT_VERSION/simplex-chat-ubuntu-22_04-x86-64
+      URL=https://github.com/simplex-chat/simplex-chat/releases/download/v${SNAPCRAFT_PROJECT_VERSION}/simplex-chat-ubuntu-24_04-x86_64
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       wget -q -O $SNAPCRAFT_PART_INSTALL/bin/simplex-cli $URL
       chmod +x $SNAPCRAFT_PART_INSTALL/bin/simplex-cli
