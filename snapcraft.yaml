@@ -1,6 +1,7 @@
 name: simplexchat
+title: SimpleX Chat
 base: core24
-version: '6.5.5'
+version: '7.0.2'
 summary: The first messaging platform that has no user identifiers of any kind
 description: |
              SimpleX Chat is a private and secure messaging app that emphasizes privacy by not using user IDs,
@@ -8,6 +9,11 @@ description: |
              ensuring no long-term identifiers exist. The app features end-to-end encryption, decentralized groups,
              and anonymous credentials to enhance security. Users can control their data, avoid spam and abuse,
              and connect via servers or Tor for added privacy.
+contact: mailto:ravage2k@gmail.com
+issues: https://github.com/nbuechner/simplexchat-snap/issues
+source-code: https://github.com/nbuechner/simplexchat-snap
+website: https://simplex.chat
+license: AGPL-3.0-only
 grade: stable
 confinement: strict
 
@@ -20,13 +26,13 @@ apps:
   simplexchat:
     command: wrapper.sh
     plugs: [home, x11, desktop, desktop-legacy, network, audio-playback, audio-record, wayland, unity7]
-    extensions: [ gnome ]
+    extensions: [ gnome, gpu ]
     environment:
        _JAVA_OPTIONS: "-Djava.security.manager=allow"
   simplex-cli:
     command: bin/simplex-cli
     plugs: [home, x11, desktop, desktop-legacy, network, audio-playback, audio-record, wayland, unity7]
-    extensions: [ gnome ]
+    extensions: [ gnome, gpu ]
     aliases: [simplex-cli]
 
 parts:
@@ -38,6 +44,14 @@ parts:
       wget -q -O- $URL | dpkg -x - "$SNAPCRAFT_PART_INSTALL"
       cp -f ${CRAFT_PROJECT_DIR}/local/wrapper.sh $SNAPCRAFT_PART_INSTALL/wrapper.sh
       chmod +x $SNAPCRAFT_PART_INSTALL/wrapper.sh
+      # Bundled VLC ships its own copies of the GPU libraries that the gpu-2404
+      # content interface already provides at runtime; drop them so the app
+      # resolves them from the content snap instead of a redundant local copy.
+      rm -f "$SNAPCRAFT_PART_INSTALL"/opt/simplex/lib/app/resources/vlc/libva.so.2
+      rm -f "$SNAPCRAFT_PART_INSTALL"/opt/simplex/lib/app/resources/vlc/libva-drm.so.2
+      rm -f "$SNAPCRAFT_PART_INSTALL"/opt/simplex/lib/app/resources/vlc/libva-x11.so.2
+      rm -f "$SNAPCRAFT_PART_INSTALL"/opt/simplex/lib/app/resources/vlc/libvdpau.so.1
+      rm -f "$SNAPCRAFT_PART_INSTALL"/opt/simplex/lib/app/resources/vlc/libvulkan.so.1
       craftctl default
 
     build-packages:
@@ -67,4 +81,16 @@ layout:
 lint:
   ignore:
     - library
+    - gpu:
+      # VLC's own vaapi/vdpau output-module plugins, not vendor GPU libraries -
+      # mesa-2404 cannot provide these, they are VLC's code and must stay bundled.
+      - opt/simplex/lib/app/resources/vlc/vlc/plugins/codec/libvaapi_plugin.so
+      - opt/simplex/lib/app/resources/vlc/vlc/plugins/codec/libvaapi_drm_plugin.so
+      - opt/simplex/lib/app/resources/vlc/vlc/plugins/vaapi/libvaapi_filters_plugin.so
+      - opt/simplex/lib/app/resources/vlc/vlc/plugins/vdpau/libvdpau_adjust_plugin.so
+      - opt/simplex/lib/app/resources/vlc/vlc/plugins/vdpau/libvdpau_avcodec_plugin.so
+      - opt/simplex/lib/app/resources/vlc/vlc/plugins/vdpau/libvdpau_chroma_plugin.so
+      - opt/simplex/lib/app/resources/vlc/vlc/plugins/vdpau/libvdpau_deinterlace_plugin.so
+      - opt/simplex/lib/app/resources/vlc/vlc/plugins/vdpau/libvdpau_display_plugin.so
+      - opt/simplex/lib/app/resources/vlc/vlc/plugins/vdpau/libvdpau_sharpen_plugin.so
 
